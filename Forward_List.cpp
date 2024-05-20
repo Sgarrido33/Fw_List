@@ -1,4 +1,6 @@
+#include <iostream>
 #include <stdexcept>
+
 using namespace std;
 
 template<typename T>
@@ -12,18 +14,21 @@ private:
     Node* head;
     int nodes;
 public:
-    Linked_List():head(nullptr),nodes(0){};
+    Linked_List():head(nullptr),nodes(0){}
 
+    ~Linked_List() {
+        clear();
+    }
 
-    T front(){
+    T front() const {
         if(!head)
-            throw std::out_of_range("La lista esta vacia");
+            throw std::out_of_range("La lista está vacía");
         return head->data;
     }
 
-    T back(){
+    T back() const {
         if(!head)
-            throw std::out_of_range("La lista esta vacia");
+            throw std::out_of_range("La lista está vacía");
 
         Node* temp = head;
         while(temp->next != nullptr)
@@ -32,94 +37,73 @@ public:
     }
 
     void push_front(T value){
-        Node* nodo = new Node;
-        nodo->data = value;
-
-        if(!head)
-            nodo->next = nullptr;
-        else
-            nodo->next = head;
-
+        Node* nodo = new Node{value, head};
         head = nodo;
-        nodes++;;
+        nodes++;
     }
 
     void push_back(T value){
-        Node* nodo = new Node;
-        nodo->data = value;
-
+        Node* nodo = new Node{value, nullptr};
         if(!head){
-            nodo->next = nullptr;
-        }
-        else{
+            head = nodo;
+        } else {
             Node* temp = head;
             while(temp->next != nullptr){
                 temp = temp->next;
             }
             temp->next = nodo;
-            nodo->next = nullptr;
         }
-        nodes++;;
+        nodes++;
     }
 
-    T pop_front(){
+    void pop_front(){
         if(!head)
-            throw std::out_of_range("La lista esta vacia");
+            throw std::out_of_range("La lista está vacía");
         Node* temp = head;
-        head = temp->next;
-        temp->next = nullptr;
+        head = head->next;
         delete temp;
         nodes--;
     }
 
-    T pop_back(){
+    void pop_back(){
         if(!head)
-            throw std::out_of_range("La lista esta vacia");
+            throw std::out_of_range("La lista está vacía");
 
         if (!head->next) {
             delete head;
             head = nullptr;
-            nodes = 0;
+        } else {
+            Node* temp = head;
+            while(temp->next->next != nullptr){
+                temp = temp->next;
+            }
+            delete temp->next;
+            temp->next = nullptr;
         }
-
-        Node* temp = head;
-        while(temp->next->next != nullptr){
-            temp = temp->next;
-        }
-        delete temp->next;
-        temp->next = nullptr;
         nodes--;
     }
 
-    T operator[](int pos){
+    T operator[](int pos) const {
         if(pos >= nodes or pos < 0)
-            throw std::out_of_range("Posicion fuera de rango");
-
-        if(pos == 0)
-            return front();
-
-        if(pos == nodes-1)
-            return back();
+            throw std::out_of_range("Posición fuera de rango");
 
         Node* temp = head;
-        for(int i=0;i<pos;i++){
+        for(int i = 0; i < pos; i++){
             temp = temp->next;
         }
         return temp->data;
-    };
-
-    bool empty(){
-        if(!head or nodes == 0)
-            return true;
-        return false;
     }
 
-    int size(){
+    bool empty() const {
+        return head == nullptr;
+    }
+
+    int size() const {
         return nodes;
     }
 
     void clear(){
-        while(head!= nullptr)
+        while(head != nullptr)
             pop_front();
     }
 
@@ -127,25 +111,22 @@ public:
         if (head == nullptr or head->next == nullptr)
             return;
 
-        bool swap;
+        bool swapped;
         Node* temp;
-        Node* lasttemp = nullptr;
+        Node* last = nullptr;
         do {
-            swap = false;
+            swapped = false;
             temp = head;
 
-            while (temp->next != lasttemp) {
+            while (temp->next != last) {
                 if (temp->data > temp->next->data) {
-
-                    temp = temp->data;
-                    temp->data = temp->next->data;
-                    temp->next->data = temp;
-                    swap = true;
+                    std::swap(temp->data, temp->next->data);
+                    swapped = true;
                 }
                 temp = temp->next;
             }
-            lasttemp = temp;
-        } while (swap);
+            last = temp;
+        } while (swapped);
     }
 
     void reverse(){
@@ -166,7 +147,3 @@ public:
         head = prev;
     }
 };
-
-
-
-
